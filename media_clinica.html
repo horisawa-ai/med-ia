@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MedIA — Raciocínio Clínico</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c12;
+  --s1: #0e1520;
+  --s2: #141e2e;
+  --s3: #1b2840;
+  --border: #1e2e45;
+  --border2: #273d5a;
+  --green: #00e5a0;
+  --green-d: rgba(0,229,160,0.1);
+  --green-d2: rgba(0,229,160,0.05);
+  --red: #ff3d5a;
+  --red-d: rgba(255,61,90,0.12);
+  --amber: #ffb020;
+  --amber-d: rgba(255,176,32,0.1);
+  --blue: #4d9fff;
+  --blue-d: rgba(77,159,255,0.1);
+  --cyan: #00c8e0;
+  --cyan-d: rgba(0,200,224,0.1);
+  --text: #dce8f5;
+  --t2: #6b8aaa;
+  --t3: #3d5570;
+  --mono: 'JetBrains Mono', monospace;
+  --head: 'Syne', sans-serif;
+  --body: 'DM Sans', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--body);background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+
+/* HEADER */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px;
+  background:var(--s1);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  z-index:20;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:#080c12;font-family:var(--mono);
+}
+.logo-name{font-family:var(--head);font-size:15px;font-weight:700;letter-spacing:0.5px}
+.logo-name span{color:var(--green)}
+
+/* MODE TABS */
+.mode-tabs{display:flex;gap:4px;background:var(--s2);padding:3px;border-radius:8px;border:1px solid var(--border)}
+.tab{
+  font-family:var(--mono);font-size:10px;letter-spacing:0.5px;font-weight:600;
+  padding:5px 14px;border-radius:6px;border:none;cursor:pointer;
+  background:transparent;color:var(--t2);transition:all 0.15s;
+}
+.tab.active{background:var(--s3);color:var(--text);border:1px solid var(--border2)}
+.tab.ps.active{color:var(--amber)}
+.tab.uti.active{color:var(--cyan)}
+
+/* PATIENT TOGGLE */
+.patient-toggle{
+  display:flex;gap:2px;background:var(--s2);padding:3px;
+  border-radius:8px;border:1px solid var(--border);
+}
+.ptab{
+  font-family:var(--mono);font-size:9px;letter-spacing:0.5px;font-weight:600;
+  padding:4px 11px;border-radius:5px;border:none;cursor:pointer;
+  background:transparent;color:var(--t3);transition:all 0.15s;
+  display:flex;align-items:center;gap:4px;
+}
+.ptab.active{background:var(--s3);color:var(--text);border:1px solid var(--border2)}
+.ptab.adult.active{color:var(--text)}
+.ptab.ped.active{color:#f472b6}
+.ptab-icon{font-size:11px}
+.btn-new{
+  font-family:var(--mono);font-size:10px;padding:5px 12px;
+  border-radius:6px;border:1px solid var(--border2);
+  background:transparent;color:var(--t2);cursor:pointer;transition:all 0.15s;
+}
+.btn-new:hover{border-color:var(--green);color:var(--green)}
+
+/* BODY LAYOUT */
+.app-body{flex:1;display:flex;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:var(--s1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sidebar-title{
+  font-family:var(--mono);font-size:9px;letter-spacing:1.5px;
+  color:var(--t3);padding:14px 16px 8px;text-transform:uppercase;
+}
+.quick-list{overflow-y:auto;flex:1;padding:0 8px 8px}
+.quick-group-label{
+  font-family:var(--mono);font-size:8px;letter-spacing:1px;
+  color:var(--t3);padding:10px 8px 5px;text-transform:uppercase;
+}
+.quick-btn{
+  display:flex;align-items:center;gap:8px;width:100%;
+  padding:8px 10px;border-radius:7px;border:none;
+  background:transparent;color:var(--t2);font-family:var(--body);
+  font-size:12px;cursor:pointer;transition:all 0.15s;text-align:left;
+  line-height:1.3;
+}
+.quick-btn:hover{background:var(--s2);color:var(--text)}
+.quick-btn .qicon{font-size:14px;flex-shrink:0}
+.quick-btn.ps-q:hover{color:var(--amber)}
+.quick-btn.uti-q:hover{color:var(--cyan)}
+
+/* MAIN CHAT */
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.chat-scroll{
+  flex:1;overflow-y:auto;padding:16px 0;
+  scroll-behavior:smooth;
+}
+.chat-scroll::-webkit-scrollbar{width:3px}
+.chat-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.chat-content{max-width:820px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;gap:14px}
+
+/* EMPTY */
+.empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;gap:10px;
+}
+.empty-glyph{font-size:40px;opacity:0.2;margin-bottom:4px}
+.empty-title{font-family:var(--head);font-size:14px;font-weight:700;color:var(--t3);letter-spacing:1px}
+.empty-sub{font-size:13px;color:var(--t3);max-width:320px;line-height:1.6}
+.mode-badge{
+  font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:3px 10px;border-radius:99px;
+  margin-top:4px;
+}
+.mode-badge.ps{background:var(--amber-d);color:var(--amber);border:1px solid rgba(255,176,32,0.2)}
+.mode-badge.uti{background:var(--cyan-d);color:var(--cyan);border:1px solid rgba(0,200,224,0.2)}
+
+/* MESSAGES */
+.msg{display:flex;gap:10px;animation:fadeUp 0.2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+
+.avatar{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;flex-shrink:0;margin-top:2px;
+}
+.msg.ai .avatar{background:var(--green-d);color:var(--green);border:1px solid rgba(0,229,160,0.2)}
+.msg.user .avatar{background:var(--s2);color:var(--t2);border:1px solid var(--border2)}
+
+.bubble{
+  max-width:80%;background:var(--s1);border:1px solid var(--border2);
+  border-radius:12px;padding:11px 14px;font-size:13.5px;line-height:1.65;color:var(--text);
+}
+.msg.user .bubble{background:var(--s2);border-color:var(--border2)}
+.msg.ai .bubble{max-width:100%;width:100%}
+
+/* Image preview in bubble */
+.img-preview-bubble{
+  max-width:220px;border-radius:8px;margin-top:6px;
+  border:1px solid var(--border2);display:block;
+}
+
+/* QUESTIONS */
+.q-message{font-size:13px;color:var(--t2);margin-bottom:10px;line-height:1.5}
+.q-block{margin-top:8px}
+.q-text{font-size:13px;color:var(--text);margin-bottom:7px;line-height:1.5}
+.q-options{display:flex;flex-wrap:wrap;gap:6px}
+.q-opt{
+  font-size:12px;padding:5px 13px;border-radius:99px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--t2);cursor:pointer;transition:all 0.15s;user-select:none;
+}
+.q-opt:hover{border-color:var(--green);color:var(--green);background:var(--green-d2)}
+.q-opt.selected{border-color:var(--green);color:var(--green);background:var(--green-d)}
+.q-opt:disabled{opacity:0.35;cursor:not-allowed;pointer-events:none}
+.q-input-wrap{
+  display:flex;align-items:center;gap:8px;margin-top:4px;
+}
+.q-input{
+  flex:1;background:var(--s2);border:1px solid var(--border2);
+  border-radius:8px;padding:7px 12px;color:var(--text);
+  font-family:var(--body);font-size:13px;outline:none;
+  transition:border-color .15s;caret-color:var(--green);
+  min-width:0;
+}
+.q-input:focus{border-color:var(--green)}
+.q-input::placeholder{color:var(--t3)}
+.q-input-unit{
+  font-family:var(--mono);font-size:10px;color:var(--t3);
+  flex-shrink:0;
+}
+  margin-top:10px;
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  padding:7px 18px;border-radius:8px;
+  background:var(--green);color:#080c12;border:none;cursor:pointer;
+  transition:all 0.15s;letter-spacing:0.3px;
+}
+.q-confirm:hover{opacity:0.85}
+.q-confirm:disabled{opacity:0.3;cursor:not-allowed}
+
+.quick-btn.prescricao-q{ border-top: 1px solid var(--border); margin-top:2px; }
+.quick-btn.prescricao-q:hover{ color: var(--green); }
+
+.rx-alta-list{ display:flex; flex-wrap:wrap; gap:5px; }
+.rx-alta-item{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; color:var(--green); line-height:1.4;
+  padding:3px 9px; border-radius:99px;
+  background:var(--green-d); border:1px solid rgba(0,229,160,0.15);
+}
+.rx-alta-item::before{ content:'✓'; font-weight:700; flex-shrink:0; }
+
+/* ANALYSIS */
+.analysis-wrap{display:flex;flex-direction:column;gap:9px}
+.rx-wrap{ display:flex; flex-direction:column; gap:10px; }
+.rx-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding-bottom:8px; border-bottom:1px solid var(--border);
+}
+.rx-title{ font-family:var(--mono); font-size:9px; letter-spacing:1px; color:var(--t3); }
+.rx-nivel{
+  font-family:var(--mono); font-size:9px; font-weight:600;
+  padding:2px 9px; border-radius:4px; letter-spacing:0.5px;
+}
+.rx-nivel.ambulatorial{ background:var(--green-d); color:var(--green); border:1px solid rgba(0,229,160,0.2); }
+.rx-nivel.internacao{ background:var(--amber-d); color:var(--amber); border:1px solid rgba(255,176,32,0.2); }
+.rx-nivel.uti{ background:var(--red-d); color:var(--red); border:1px solid rgba(255,61,90,0.2); }
+
+.rx-dx{
+  font-size:13px; font-weight:500; color:var(--text);
+  padding:8px 12px; background:var(--s2); border-radius:7px;
+  border-left:3px solid var(--green);
+}
+
+.rx-section-label{
+  font-family:var(--mono); font-size:9px; letter-spacing:1.2px;
+  color:var(--t3); text-transform:uppercase; margin-bottom:6px;
+  display:flex; align-items:center; gap:6px;
+}
+.rx-section-label .dot{ width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+
+.rx-items{ display:flex; flex-direction:column; gap:5px; }
+.rx-item{
+  background:var(--s2); border:1px solid var(--border2);
+  border-radius:8px; padding:10px 13px;
+}
+.rx-drug{
+  font-family:var(--mono); font-size:12px; font-weight:600;
+  color:var(--text); margin-bottom:3px; letter-spacing:0.3px;
+}
+.rx-posologia{ font-size:13px; color:var(--t2); line-height:1.5; }
+.rx-obs-item{ font-size:11px; color:var(--t3); margin-top:3px; font-style:italic; }
+
+.rx-alert{
+  background:var(--red-d); border:1px solid rgba(255,61,90,0.2);
+  border-radius:7px; padding:8px 12px; font-size:12px;
+  color:var(--red); display:flex; gap:7px; align-items:flex-start;
+}
+.rx-alert::before{ content:'⚠'; flex-shrink:0; }
+
+.rx-note{
+  background:var(--s2); border:1px solid var(--border2);
+  border-left:3px solid var(--blue); border-radius:0 7px 7px 0;
+  padding:9px 12px; font-size:12px; color:var(--t2); line-height:1.55;
+}
+
+.btn-copy{
+  font-family:var(--mono); font-size:10px; letter-spacing:0.4px;
+  padding:6px 14px; border-radius:7px;
+  border:1px solid var(--border2); background:transparent;
+  color:var(--t2); cursor:pointer; transition:all 0.15s;
+  display:flex; align-items:center; gap:6px; margin-top:4px;
+}
+.btn-copy:hover{ border-color:var(--green); color:var(--green); }
+.btn-copy.copied{ border-color:var(--green); color:var(--green); background:var(--green-d); }
+
+.a-header{
+  font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--t3);
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:6px;
+}
+.a-mode-dot{width:6px;height:6px;border-radius:50%}
+
+.a-section{}
+.a-label{
+  font-family:var(--mono);font-size:9px;letter-spacing:1.2px;font-weight:600;
+  text-transform:uppercase;margin-bottom:7px;
+  display:flex;align-items:center;gap:6px;
+}
+.a-label .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* Red flags */
+.flag-list{display:flex;flex-direction:column;gap:5px}
+.flag-item{
+  display:flex;align-items:flex-start;gap:8px;
+  background:var(--red-d);border:1px solid rgba(255,61,90,0.2);
+  border-radius:8px;padding:8px 12px;font-size:13px;line-height:1.5;
+}
+.flag-item::before{content:'⚠';font-size:11px;color:var(--red);margin-top:1px;flex-shrink:0}
+
+/* Hipóteses */
+.dx-list{display:flex;flex-direction:column;gap:5px}
+.dx-item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:8px;padding:8px 12px;font-size:13px;
+}
+.dx-num{font-family:var(--mono);font-size:10px;color:var(--t3);width:20px;flex-shrink:0}
+.dx-name{flex:1}
+.dx-prob{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:4px}
+.dx-prob.high{background:var(--red-d);color:var(--red)}
+.dx-prob.med{background:var(--amber-d);color:var(--amber)}
+.dx-prob.low{background:var(--blue-d);color:var(--blue)}
+
+/* Condutas */
+.conduct-list{display:flex;flex-direction:column;gap:6px}
+.conduct-item{
+  background:var(--s2);border:1px solid var(--border2);
+  border-left:3px solid var(--green);
+  border-radius:0 8px 8px 0;padding:9px 12px;
+}
+.conduct-text{font-size:13px;line-height:1.55;margin-bottom:3px}
+.conduct-src{font-family:var(--mono);font-size:9px;color:var(--green);opacity:0.65;letter-spacing:0.3px}
+
+/* Exames */
+.exam-tags{display:flex;flex-wrap:wrap;gap:6px}
+.exam-tag{
+  font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:5px;
+  background:var(--amber-d);color:var(--amber);border:1px solid rgba(255,176,32,0.2);
+}
+.exam-tag.urg{background:var(--red-d);color:var(--red);border-color:rgba(255,61,90,0.2)}
+
+/* UTI extras */
+.vent-grid,.monitor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:2px}
+.param-card{
+  background:var(--s2);border:1px solid var(--border2);border-radius:8px;
+  padding:8px 10px;
+}
+.param-card.alert{border-color:rgba(255,61,90,0.3);background:var(--red-d)}
+.param-card.warn{border-color:rgba(255,176,32,0.3);background:var(--amber-d)}
+.param-card.ok{border-color:rgba(0,229,160,0.2);background:var(--green-d2)}
+.param-label{font-family:var(--mono);font-size:8px;letter-spacing:0.8px;color:var(--t3);margin-bottom:3px}
+.param-val{font-family:var(--mono);font-size:14px;font-weight:700}
+.param-card.alert .param-val{color:var(--red)}
+.param-card.warn .param-val{color:var(--amber)}
+.param-card.ok .param-val{color:var(--green)}
+.param-note{font-size:10px;color:var(--t2);margin-top:2px;line-height:1.3}
+
+/* obs */
+.obs-card{
+  background:var(--s2);border:1px solid var(--border2);
+  border-left:3px solid var(--blue);border-radius:0 8px 8px 0;
+  padding:10px 14px;font-size:13px;color:var(--t2);line-height:1.55;
+}
+
+/* Follow-up */
+.followup{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fu-btn{
+  font-size:12px;padding:5px 13px;border-radius:99px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--t2);cursor:pointer;transition:all 0.15s;
+}
+.fu-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-d2)}
+
+/* Loading */
+.dots{display:flex;gap:4px}
+.dots span{
+  width:5px;height:5px;background:var(--green);border-radius:50%;
+  animation:pulse 1.2s ease-in-out infinite;
+}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+/* INPUT BAR */
+.input-bar{
+  border-top:1px solid var(--border);background:var(--s1);
+  padding:10px 18px 12px;flex-shrink:0;
+}
+.input-inner{max-width:820px;margin:0 auto}
+
+/* Image previews */
+.attachments-row{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;
+}
+.attach-thumb{
+  position:relative;width:56px;height:56px;border-radius:7px;
+  border:1px solid var(--border2);overflow:hidden;
+}
+.attach-thumb img{width:100%;height:100%;object-fit:cover}
+.attach-remove{
+  position:absolute;top:2px;right:2px;width:16px;height:16px;
+  background:var(--red);color:#fff;border:none;border-radius:50%;
+  font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;
+}
+
+.input-row{display:flex;align-items:flex-end;gap:8px}
+
+.input-field{
+  flex:1;background:var(--s2);border:1px solid var(--border2);
+  border-radius:10px;padding:10px 12px;display:flex;align-items:flex-end;gap:8px;
+  transition:border-color .2s;
+}
+.input-field:focus-within{border-color:var(--green)}
+
+textarea#msg{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:var(--body);font-size:14px;font-weight:300;
+  line-height:1.5;resize:none;max-height:100px;caret-color:var(--green);
+}
+textarea#msg::placeholder{color:var(--t3)}
+
+.btn-attach,.btn-voice{
+  background:transparent;border:none;color:var(--t3);
+  cursor:pointer;font-size:16px;padding:2px;transition:color .15s;flex-shrink:0;line-height:1;
+}
+.btn-attach:hover{color:var(--amber)}
+.btn-voice:hover{color:var(--green)}
+.btn-voice.rec{color:var(--red);animation:blink .8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+#fileInput{display:none}
+
+.btn-send{
+  background:var(--green);border:none;color:#080c12;
+  width:38px;height:38px;border-radius:9px;font-size:16px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-weight:700;transition:all .15s;flex-shrink:0;
+}
+.btn-send:hover{opacity:.85;transform:translateY(-1px)}
+.btn-send:disabled{opacity:.3;cursor:not-allowed;transform:none}
+
+.disclaimer{
+  font-family:var(--mono);font-size:8px;color:var(--t3);
+  text-align:center;margin-top:6px;letter-spacing:.4px;
+}
+
+@media(max-width:680px){
+  .sidebar{display:none}
+  .vent-grid,.monitor-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">M+</div>
+    <div class="logo-name">Med<span>IA</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="mode-tabs">
+      <button class="tab ps active" id="tabPS" onclick="setMode('PS')">PS</button>
+      <button class="tab uti" id="tabUTI" onclick="setMode('UTI')">UTI</button>
+    </div>
+    <div class="patient-toggle">
+      <button class="ptab adult active" id="ptabAdult" onclick="setPatient('adulto')">
+        <span class="ptab-icon">🧑</span> Adulto
+      </button>
+      <button class="ptab ped" id="ptabPed" onclick="setPatient('pediatrico')">
+        <span class="ptab-icon">👶</span> Pediátrico
+      </button>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-new" onclick="newCase()">+ Novo caso</button>
+    <button class="btn-new" onclick="showKeyModal()" title="Configurar chave API">⚙ API</button>
+  </div>
+</header>
+
+<div class="app-body">
+
+  <!-- MODAL API KEY -->
+  <div id="keyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center">
+    <div style="background:#0e1520;border:1px solid #273d5a;border-radius:14px;padding:28px 32px;width:420px;max-width:90vw">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:#00e5a0;margin-bottom:6px">CONFIGURAÇÃO</div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:8px;color:#dce8f5">Chave da API Anthropic</div>
+      <div style="font-size:13px;color:#6b8aaa;margin-bottom:18px;line-height:1.6">Para usar o MedIA, você precisa de uma chave de API da Anthropic. Ela fica salva só no seu navegador e nunca é compartilhada.</div>
+      <input id="keyInput" type="password" placeholder="sk-ant-api03-..." style="width:100%;background:#141e2e;border:1px solid #273d5a;border-radius:8px;padding:10px 14px;color:#dce8f5;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;margin-bottom:8px" onkeydown="if(event.key==='Enter')confirmKey()">
+      <div id="keyError" style="display:none;font-size:12px;color:#ff3d5a;margin-bottom:8px">⚠ Chave inválida. Deve começar com sk-ant-</div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
+        <button onclick="confirmKey()" style="background:#00e5a0;border:none;color:#080c12;padding:9px 20px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer">Salvar e entrar</button>
+        <a href="https://console.anthropic.com" target="_blank" style="font-size:12px;color:#6b8aaa;text-decoration:none">Não tem chave? Crie em console.anthropic.com →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Atalhos</div>
+    <div class="quick-list" id="quickList">
+      <!-- preenchido via JS por modo -->
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="chat-scroll" id="chatScroll">
+      <div class="chat-content" id="chatContent">
+        <div class="empty" id="emptyState">
+          <div class="empty-glyph">⚕</div>
+          <div class="empty-title">RACIOCÍNIO CLÍNICO ASSISTIDO</div>
+          <div class="empty-sub">Descreva o caso, envie uma foto ou use os atalhos. A IA pergunta quando precisa e raciocina junto com você.</div>
+          <div class="mode-badge ps" id="emptyBadge">MODO PS · PRONTO-SOCORRO</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-inner">
+        <div class="attachments-row" id="attachRow" style="display:none"></div>
+        <div class="input-row">
+          <div class="input-field">
+            <textarea id="msg" rows="1" placeholder="Descreva o caso, responda a pergunta, ou envie uma imagem..."
+              onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="btn-attach" onclick="document.getElementById('fileInput').click()" title="Anexar imagem">📎</button>
+          </div>
+          <button class="btn-send" id="sendBtn" onclick="send()">→</button>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(event)">
+      </div>
+      <div class="disclaimer">APOIO À DECISÃO CLÍNICA · NÃO SUBSTITUI JULGAMENTO MÉDICO · PROTOCOLOS BRASILEIROS VIGENTES</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let mode = 'PS';
+let patient = 'adulto'; // 'adulto' | 'pediatrico'
+let history = [];
+let attachments = [];
+let isRec = false;
+
+// ── API KEY MANAGEMENT ──────────────────────────────────────────────
+function getApiKey() { return localStorage.getItem('media_api_key') || ''; }
+function saveApiKey(k) { localStorage.setItem('media_api_key', k.trim()); }
+
+function showKeyModal() {
+  document.getElementById('keyModal').style.display = 'flex';
+  document.getElementById('keyInput').value = getApiKey();
+  document.getElementById('keyInput').focus();
+}
+function hideKeyModal() { document.getElementById('keyModal').style.display = 'none'; }
+
+function confirmKey() {
+  const k = document.getElementById('keyInput').value.trim();
+  if (!k.startsWith('sk-ant-')) {
+    document.getElementById('keyError').style.display = 'block';
+    return;
+  }
+  saveApiKey(k);
+  hideKeyModal();
+}
+
+// Verifica chave ao carregar
+window.addEventListener('load', () => {
+  if (!getApiKey()) showKeyModal();
+});
+
+function setPatient(p) {
+  patient = p;
+  document.getElementById('ptabAdult').className = `ptab adult${p==='adulto'?' active':''}`;
+  document.getElementById('ptabPed').className   = `ptab ped${p==='pediatrico'?' active':''}`;
+  updateEmptyBadge();
+}
+
+function updateEmptyBadge() {
+  const badge = document.getElementById('emptyBadge');
+  if (!badge) return;
+  const pedTxt = patient === 'pediatrico' ? ' · PEDIÁTRICO' : '';
+  const modeTxt = mode === 'PS' ? 'MODO PS · PRONTO-SOCORRO' : 'MODO UTI · TERAPIA INTENSIVA';
+  badge.textContent = modeTxt + pedTxt;
+  badge.className = `mode-badge ${mode.toLowerCase()}`;
+}
+
+const QUICK = {
+  PS: [
+    {label:'Dor torácica', icon:'💔', text:'Dor torácica', group:'Emergências'},
+    {label:'Dispneia aguda', icon:'🫁', text:'Dispneia aguda, sat baixa', group:'Emergências'},
+    {label:'Rebaixamento de consciência', icon:'🧠', text:'Rebaixamento de consciência', group:'Emergências'},
+    {label:'Dor abdominal aguda', icon:'🫃', text:'Dor abdominal aguda', group:'Emergências'},
+    {label:'Crise convulsiva', icon:'⚡', text:'Crise convulsiva primeiro episódio', group:'Emergências'},
+    {label:'Cefaleia grave', icon:'🔴', text:'Cefaleia súbita intensa, pior da vida', group:'Emergências'},
+    {label:'Choque / hipotensão', icon:'📉', text:'Hipotensão, PA 80x50, taquicardia', group:'Emergências'},
+    {label:'Tamanho do tubo (IOT)', icon:'🫁', text:'Preciso intubar, me ajuda com o tamanho do tubo e sequência de IOT', group:'Emergências'},
+    {label:'Anafilaxia', icon:'🚨', text:'Reação alérgica grave, angioedema', group:'Emergências'},
+    {label:'AVC suspeito', icon:'🧠', text:'Déficit neurológico focal agudo, suspeita AVC', group:'Emergências'},
+    {label:'Prescrição ambulatorial', icon:'📝', text:'Quero uma prescrição ambulatorial', group:'Prescrições'},
+    {label:'Prescrição internação/obs', icon:'🏥', text:'Quero uma prescrição para paciente internado em observação ou enfermaria', group:'Prescrições'},
+  ],
+  UTI: [
+    {label:'Reposição de potássio', icon:'🧪', text:'Paciente na UTI com hipocalemia, como fazer a reposição', group:'Condutas'},
+    {label:'Edema agudo de pulmão', icon:'🫧', text:'Paciente encharcado, edema agudo, como conduzir', group:'Condutas'},
+    {label:'Ajuste do ventilador', icon:'🌬', text:'Paciente ventilando mal, preciso ajustar o ventilador', group:'Condutas'},
+    {label:'Checar prescrição', icon:'📋', text:'Tenho uma prescrição de UTI, quero revisar se está adequada', group:'Condutas'},
+    {label:'Sepse / choque séptico', icon:'🔴', text:'Sepse, choque séptico, como protocolar', group:'Condutas'},
+    {label:'Hiponatremia grave', icon:'🧂', text:'Sódio 118, como corrigir com segurança', group:'Condutas'},
+    {label:'Sedoanalgesia', icon:'💊', text:'Paciente agitado, como titular sedação e analgesia', group:'Condutas'},
+    {label:'FA em UTI', icon:'💓', text:'Fibrilação atrial com instabilidade hemodinâmica em UTI', group:'Condutas'},
+    {label:'Nutrição enteral', icon:'🥤', text:'Como prescrever nutrição enteral para paciente crítico', group:'Condutas'},
+    {label:'Desmame ventilatório', icon:'📊', text:'Paciente pronto para desmame? Como avaliar', group:'Condutas'},
+    {label:'Prescrição UTI completa', icon:'📝', text:'Quero uma prescrição completa de UTI', group:'Prescrições'},
+    {label:'Prescrição enfermaria/obs', icon:'🏥', text:'Quero uma prescrição para paciente internado em observação ou enfermaria', group:'Prescrições'},
+  ]
+};
+
+function renderSidebar() {
+  const ql = document.getElementById('quickList');
+  const items = QUICK[mode];
+  // Agrupar por group
+  const groups = {};
+  items.forEach(q => {
+    if (!groups[q.group]) groups[q.group] = [];
+    groups[q.group].push(q);
+  });
+  ql.innerHTML = '';
+  Object.entries(groups).forEach(([grp, list]) => {
+    ql.innerHTML += `<div class="quick-group-label">${grp}</div>`;
+    list.forEach(q => {
+      const btn = document.createElement('button');
+      const isPrescricao = grp === 'Prescrições';
+      btn.className = `quick-btn ${mode.toLowerCase()}-q${isPrescricao ? ' prescricao-q' : ''}`;
+      btn.innerHTML = `<span class="qicon">${q.icon}</span><span>${q.label}</span>`;
+      btn.onclick = () => { document.getElementById('msg').value = q.text; send(); };
+      ql.appendChild(btn);
+    });
+  });
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('tabPS').className = `tab ps${m==='PS'?' active':''}`;
+  document.getElementById('tabUTI').className = `tab uti${m==='UTI'?' active':''}`;
+  updateEmptyBadge();
+  renderSidebar();
+}
+
+function newCase() {
+  history = []; attachments = [];
+  const pedTxt = patient === 'pediatrico' ? ' · PEDIÁTRICO' : '';
+  const modeTxt = mode === 'PS' ? 'MODO PS · PRONTO-SOCORRO' : 'MODO UTI · TERAPIA INTENSIVA';
+  document.getElementById('chatContent').innerHTML = `
+    <div class="empty" id="emptyState">
+      <div class="empty-glyph">⚕</div>
+      <div class="empty-title">RACIOCÍNIO CLÍNICO ASSISTIDO</div>
+      <div class="empty-sub">Descreva o caso, envie uma foto ou use os atalhos. A IA pergunta quando precisa e raciocina junto com você.</div>
+      <div class="mode-badge ${mode.toLowerCase()}" id="emptyBadge">${modeTxt}${pedTxt}</div>
+    </div>`;
+  document.getElementById('msg').value = '';
+  document.getElementById('attachRow').style.display = 'none';
+  document.getElementById('attachRow').innerHTML = '';
+}
+
+// FILES
+function handleFiles(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(f => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const b64 = ev.target.result.split(',')[1];
+      attachments.push({base64: b64, mime: f.type, name: f.name, preview: ev.target.result});
+      renderAttachRow();
+    };
+    reader.readAsDataURL(f);
+  });
+  e.target.value = '';
+}
+
+function renderAttachRow() {
+  const row = document.getElementById('attachRow');
+  row.style.display = attachments.length ? 'flex' : 'none';
+  row.innerHTML = attachments.map((a,i) => `
+    <div class="attach-thumb">
+      <img src="${a.preview}" alt="${a.name}">
+      <button class="attach-remove" onclick="removeAttach(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeAttach(i) {
+  attachments.splice(i,1);
+  renderAttachRow();
+}
+
+// SEND
+async function send() {
+  const input = document.getElementById('msg');
+  const text = input.value.trim();
+  if (!text && !attachments.length) return;
+
+  const hasImg = attachments.length > 0;
+  document.getElementById('sendBtn').disabled = true;
+
+  // Hide empty
+  const es = document.getElementById('emptyState');
+  if (es) es.remove();
+
+  // Build user message content
+  let userContent = [];
+  attachments.forEach(a => {
+    userContent.push({type:'image', source:{type:'base64', media_type:a.mime, data:a.base64}});
+  });
+  if (text) userContent.push({type:'text', text});
+  if (userContent.length === 1 && userContent[0].type === 'text') userContent = text;
+
+  // Show user bubble
+  addUserBubble(text, attachments.map(a=>a.preview));
+
+  // Push to history
+  history.push({role:'user', content: userContent});
+
+  // Clear
+  input.value = ''; input.style.height='auto';
+  attachments = []; renderAttachRow();
+
+  // Loading
+  addLoading();
+
+  try {
+    const apiKey = getApiKey();
+    if (!apiKey) { showKeyModal(); document.getElementById('sendBtn').disabled = false; return; }
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system: buildSystem(),
+        messages: history
+      })
+    });
+    const data = await resp.json();
+    const raw = data.content.map(b=>b.text||'').join('');
+    history.push({role:'assistant', content: raw});
+    removeLoading();
+
+    // Parser robusto — extrai JSON mesmo com texto ao redor
+    let result;
+    try {
+      result = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    } catch(e1) {
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (match) {
+        try { result = JSON.parse(match[0]); }
+        catch(e2) { throw new Error('JSON inválido'); }
+      } else { throw new Error('Sem JSON'); }
+    }
+    renderAIResponse(result);
+  } catch(err) {
+    removeLoading();
+    addErrorBubble('Erro ao processar. Tente novamente ou clique em "Novo caso" para reiniciar.');
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function buildSystem() {
+  const modeContext = mode === 'UTI'
+    ? `O médico está em UTI/CTI. Contextos comuns: ajuste de ventilação mecânica, prescrições de UTI, reposição eletrolítica, sedoanalgesia, desmame, nutrição enteral/parenteral, manejo de sepse, instabilidade hemodinâmica.`
+    : `O médico está em pronto-socorro geral. Contextos comuns: emergências cardiológicas, neurológicas, respiratórias, trauma, abdome agudo, intoxicações, procedimentos de emergência.`;
+
+  const patientContext = patient === 'pediatrico'
+    ? `CONTEXTO PEDIÁTRICO — OBRIGATÓRIO:
+- Todas as doses calculadas por peso (mg/kg) — NUNCA usar doses fixas de adulto
+- Se o peso não for informado, PERGUNTE antes de prescrever
+- Atenção às contraindicações por faixa etária (AAS em < 12 anos, quinolonas, tetraciclinas)
+- Referenciar diretrizes da SBP (Sociedade Brasileira de Pediatria) e PALS Brasil
+- Usar apresentações pediátricas quando disponíveis (xarope, gotas, suspensão)
+- Febre: paracetamol 10-15mg/kg/dose OU dipirona 15mg/kg/dose — nunca os dois juntos
+- Sinais de alerta pediátricos: choro inconsolável, recusa alimentar, fontanela abaulada, petéquias, tiragem intercostal`
+    : `CONTEXTO ADULTO: doses padrão para adultos. Ajustar em idosos, obesos e insuficiência renal/hepática conforme indicação.`;
+
+  return `Você é um assistente especializado em raciocínio clínico para médicos brasileiros em plantão. ${modeContext}
+
+${patientContext}
+
+CAPACIDADES DE IMAGEM:
+- Foto de prescrição: analise cada item (droga, dose, via, diluição, compatibilidade), aponte erros e interações
+- Foto de ventilador: interprete FiO2, PEEP, volume, pressão, FR, modo — sugira ajustes com justificativa
+- Foto de monitor: interprete FC, PA, SpO2, FR, temperatura, ritmo — aponte alterações críticas
+- RX ou imagem: descreva achados e correlacione com o quadro clínico
+- Exame laboratorial: interprete valores, aponte alterações e sugira condutas
+
+FLUXO:
+1. Informações insuficientes → pergunte (máx 2-3 perguntas, com opções de resposta rápida)
+2. Informações suficientes → gere a resposta no formato correto
+3. Mantenha contexto acumulado da conversa
+4. SEMPRE baseie em diretrizes BRASILEIRAS vigentes com fonte obrigatória
+
+RESPONDA SEMPRE em JSON válido (sem markdown fora do JSON):
+
+Quando perguntar:
+{
+  "type":"questions",
+  "message":"texto curto contextualizando",
+  "questions":[
+    {
+      "type":"select",
+      "text":"Pergunta com opções?",
+      "options":["Opção 1","Opção 2","Outro"]
+    },
+    {
+      "type":"input",
+      "text":"Qual o peso da criança?",
+      "placeholder":"Ex: 18",
+      "unit":"kg",
+      "inputType":"number"
+    }
+  ]
+}
+
+Regras das perguntas:
+- Use type "input" para: peso, idade, valores numéricos (glicemia, sódio, PA, SpO2, dose), qualquer dado que o médico precisa digitar um número ou texto livre
+- Use type "select" para: opções categóricas (sim/não, leve/moderado/grave, VO/IV, homem/mulher)
+- Sempre que for pediátrico e o peso não for conhecido: primeira pergunta DEVE ser input com unit "kg"
+- Pode misturar tipos na mesma rodada de perguntas
+
+Quando analisar — PS:
+{"type":"analysis","modo":"PS","resumo":"frase","red_flags":[],"hipoteses":[{"nome":"dx","prob":"alta"}],"condutas":[{"texto":"conduta","fonte":"Diretriz SBC 2023"}],"exames":[{"nome":"exame","urgente":true}],"observacao":"insight"}
+
+Quando analisar — UTI:
+{"type":"analysis","modo":"UTI","resumo":"frase","red_flags":[],"parametros":[{"label":"PARAM","valor":"val","status":"ok|warn|alert","nota":"nota"}],"hipoteses":[{"nome":"dx","prob":"alta"}],"condutas":[{"texto":"conduta","fonte":"Diretriz AMIB 2021"}],"exames":[{"nome":"exame","urgente":true}],"observacao":"insight"}
+
+Quando gerar PRESCRIÇÃO:
+{"type":"prescription","nivel":"ambulatorial|internacao|uti","diagnostico":"diagnóstico","alertas":["Alergia a X — substituído por Y"],"itens":[{"drug":"Fármaco + apresentação","posologia":"posologia completa","obs":"nota clínica para o médico"}],"criterios_alta":[],"nota":"orientações/retorno/sinais de alarme","fonte":"Diretriz brasileira + ano"}
+
+REGRAS OBRIGATÓRIAS:
+
+Fontes:
+- TODA conduta e prescrição DEVE ter fonte — nunca omitir
+- Apenas diretrizes brasileiras: SBC, SBPT, SBN, AMIB, SBP, CFM, MS, ANVISA, SBD, SBOT, SBED, etc.
+- Formato: "Nome da Diretriz + Sociedade + Ano" (ex: "Diretriz de FA — SBC 2023", "Manual de Sepse — MS 2023")
+
+Opções terapêuticas:
+- Quando houver mais de uma opção válida por diretriz, SEMPRE apresente as alternativas no campo obs
+- Escabiose: SEMPRE incluir permetrina 5% E ivermectina como opções (conforme ANVISA/MS)
+- Pediculose resistente: incluir ivermectina como opção de segunda linha
+- Nunca omitir opção terapêutica relevante prevista em diretriz brasileira
+
+Prescrição racional:
+- NUNCA dipirona + paracetamol juntos — escolha um
+- NUNCA dois AINEs simultaneamente
+- Alérgico: remova completamente o fármaco, substitua — nunca mencione o alergênico
+- Polifarmácia desnecessária: evite
+
+Linguagem acessível na prescrição ambulatorial:
+- Sempre que usar um termo técnico na posologia ou orientações, adicione o equivalente popular entre parênteses
+- Exemplos obrigatórios: prurido (coceira), cefaleia (dor de cabeça), dispneia (falta de ar), edema (inchaço), náusea (enjoo), êmese (vômito), diarreia (fezes líquidas), odinofagia (dor ao engolir), rinorreia (coriza), mialgia (dor muscular), astenia (fraqueza), pirexia (febre), eritema (vermelhidão), equimose (roxo/hematoma)
+- Isso se aplica a: campo posologia, campo obs e campo nota
+- NÃO aplicar nos campos drug (nome do medicamento) — esses permanecem técnicos
+
+Terminologia brasileira:
+- NÃO usar KVO → "manter acesso venoso periférico" ou "acesso venoso calibroso"
+- Salbutamol: spray 100mcg por padrão ambulatorial; nebulização só em emergência/UTI
+- Nomes BR: dipirona (não metamizol), paracetamol (não acetaminofeno)
+- Vias: IV, IM, SC, VO, inalatória
+- Soluções: SF 0,9%, SG 5%, RL
+- Critérios de alta: [] para ambulatorial; 3-6 critérios objetivos para internação/UTI
+
+- Para internação/UTI: inclua SEMPRE no início dos itens os cuidados gerais antes dos medicamentos:
+  * Dieta: especifique (dieta livre, leve, pastosa, líquida, jejum — com justificativa)
+  * Sinais vitais: frequência (ex: sinais vitais de 6/6h, ou de 4/4h se instável)
+  * Decúbito: posição no leito (ex: cabeceira elevada 30°)
+  * Acesso venoso periférico (se necessário)
+  * Balanço hídrico (se necessário)
+  * Monitorização: O2 contínuo, oximetria, ECG (conforme o caso)
+  * Esses itens devem aparecer como primeiros itens da prescrição, antes dos medicamentos
+- Quando dúvida entre perguntar ou gerar: PERGUNTE.`;
+}
+
+// DOM helpers
+function addUserBubble(text, previews) {
+  const d = document.createElement('div');
+  d.className = 'msg user';
+  const imgHtml = previews.map(p=>`<img src="${p}" class="img-preview-bubble" alt="imagem">`).join('');
+  d.innerHTML = `
+    <div class="avatar">👨‍⚕️</div>
+    <div class="bubble">${text ? escH(text) : ''}${imgHtml}</div>`;
+  document.getElementById('chatContent').appendChild(d);
+  scrollBot();
+}
+
+function addLoading() {
+  const d = document.createElement('div');
+  d.className = 'msg ai'; d.id = 'loadingMsg';
+  d.innerHTML = `
+    <div class="avatar">⚕</div>
+    <div class="bubble" style="display:flex;align-items:center;gap:8px;color:var(--t2);font-size:13px">
+      <div class="dots"><span></span><span></span><span></span></div>
+      Raciociando...
+    </div>`;
+  document.getElementById('chatContent').appendChild(d);
+  scrollBot();
+}
+
+function removeLoading() {
+  const l = document.getElementById('loadingMsg'); if(l) l.remove();
+}
+
+function addErrorBubble(msg) {
+  const d = document.createElement('div');
+  d.className = 'msg ai';
+  d.innerHTML = `<div class="avatar">⚕</div><div class="bubble" style="color:var(--red);font-size:13px">${msg||'Erro ao processar. Verifique a conexão e tente novamente.'}</div>`;
+  document.getElementById('chatContent').appendChild(d);
+}
+
+function escH(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderAIResponse(r) {
+  if (r.type === 'questions')    { renderQuestions(r); return; }
+  if (r.type === 'analysis')     { renderAnalysis(r); return; }
+  if (r.type === 'prescription') { renderPrescription(r); return; }
+}
+
+function renderQuestions(r) {
+  const uid = 'q_' + Date.now();
+  const d = document.createElement('div');
+  d.className = 'msg ai';
+
+  let qHtml = r.questions.map((q, qi) => {
+    const qid = `${uid}_q${qi}`;
+
+    if (q.type === 'input') {
+      // Campo de digitação livre inline
+      return `
+        <div class="q-block" style="margin-top:${qi?'10px':'0'}" data-type="input">
+          <div class="q-text">${escH(q.text)}</div>
+          <div class="q-input-wrap">
+            <input class="q-input" id="${qid}" type="${q.inputType||'text'}"
+              placeholder="${escH(q.placeholder||'Digite aqui...')}"
+              oninput="checkInputFilled('${uid}')"
+              onkeydown="if(event.key==='Enter'){document.getElementById('confirm_${uid}').click()}" />
+            ${q.unit ? `<span class="q-input-unit">${escH(q.unit)}</span>` : ''}
+          </div>
+        </div>`;
+    }
+
+    // Botões de seleção (múltipla ou única)
+    return `
+      <div class="q-block" style="margin-top:${qi?'10px':'0'}" data-type="select">
+        <div class="q-text">${escH(q.text)}</div>
+        <div class="q-options">
+          ${q.options.map(o => `<button class="q-opt" onclick="toggleOpt(this,'${uid}')">${escH(o)}</button>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  d.innerHTML = `
+    <div class="avatar">⚕</div>
+    <div class="bubble" id="${uid}">
+      <div class="q-message">${escH(r.message)}</div>
+      ${qHtml}
+      <button class="q-confirm" id="confirm_${uid}" onclick="confirmOpts('${uid}')" disabled>Confirmar →</button>
+    </div>`;
+  document.getElementById('chatContent').appendChild(d);
+  scrollBot();
+}
+
+function checkInputFilled(uid) {
+  const bubble = document.getElementById(uid);
+  const inputs = bubble.querySelectorAll('.q-input');
+  const opts = bubble.querySelectorAll('.q-opt.selected');
+  const anyInput = Array.from(inputs).some(i => i.value.trim() !== '');
+  const anyOpt = opts.length > 0;
+  document.getElementById('confirm_' + uid).disabled = !(anyInput || anyOpt);
+}
+
+function toggleOpt(btn, uid) {
+  btn.classList.toggle('selected');
+  checkInputFilled(uid);
+}
+
+function confirmOpts(uid) {
+  const bubble = document.getElementById(uid);
+
+  // Coleta inputs livres
+  const inputVals = Array.from(bubble.querySelectorAll('.q-block[data-type="input"]')).map(block => {
+    const input = block.querySelector('.q-input');
+    const unit = block.querySelector('.q-input-unit');
+    const label = block.querySelector('.q-text').textContent.trim();
+    const val = input ? input.value.trim() : '';
+    return val ? `${label.replace('?','')}: ${val}${unit ? ' ' + unit.textContent : ''}` : '';
+  }).filter(Boolean);
+
+  // Coleta botões selecionados
+  const selectedVals = Array.from(bubble.querySelectorAll('.q-opt.selected')).map(b => b.textContent);
+
+  const all = [...inputVals, ...selectedVals];
+
+  // Desabilita tudo
+  bubble.querySelectorAll('.q-opt, .q-input').forEach(el => { el.disabled = true; el.style.opacity = '.4'; });
+  const confirmBtn = document.getElementById('confirm_' + uid);
+  confirmBtn.disabled = true; confirmBtn.style.opacity = '0.4';
+
+  document.getElementById('msg').value = all.join(', ');
+  send();
+}
+
+function renderAnalysis(r) {
+  const pMap = {alta:'high',média:'med',baixa:'low'};
+  const pLbl = {alta:'ALTA',média:'MÉD',baixa:'BAIXA'};
+  const modeColor = r.modo === 'UTI' ? 'var(--cyan)' : 'var(--amber)';
+
+  const flags = r.red_flags && r.red_flags.length ? `
+    <div class="a-section">
+      <div class="a-label" style="color:var(--red)"><div class="dot" style="background:var(--red)"></div>RED FLAGS</div>
+      <div class="flag-list">${r.red_flags.map(f=>`<div class="flag-item">${escH(f)}</div>`).join('')}</div>
+    </div>` : '';
+
+  const params = r.parametros && r.parametros.length ? `
+    <div class="a-section">
+      <div class="a-label" style="color:var(--cyan)"><div class="dot" style="background:var(--cyan)"></div>PARÂMETROS</div>
+      <div class="${r.modo==='UTI'?'vent-grid':'monitor-grid'}">
+        ${r.parametros.map(p=>`
+          <div class="param-card ${p.status||'ok'}">
+            <div class="param-label">${escH(p.label)}</div>
+            <div class="param-val">${escH(p.valor)}</div>
+            ${p.nota?`<div class="param-note">${escH(p.nota)}</div>`:''}
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const hip = `
+    <div class="a-section">
+      <div class="a-label" style="color:var(--blue)"><div class="dot" style="background:var(--blue)"></div>HIPÓTESES DIAGNÓSTICAS</div>
+      <div class="dx-list">
+        ${r.hipoteses.map((h,i)=>`
+          <div class="dx-item">
+            <div class="dx-num">${String(i+1).padStart(2,'0')}</div>
+            <div class="dx-name">${escH(h.nome)}</div>
+            <div class="dx-prob ${pMap[h.prob]||'low'}">${pLbl[h.prob]||h.prob.toUpperCase()}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  const cond = `
+    <div class="a-section">
+      <div class="a-label" style="color:var(--green)"><div class="dot" style="background:var(--green)"></div>CONDUTAS</div>
+      <div class="conduct-list">
+        ${r.condutas.map(c=>`
+          <div class="conduct-item">
+            <div class="conduct-text">${escH(c.texto)}</div>
+            <div class="conduct-src">↗ ${escH(c.fonte)}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  const exams = r.exames && r.exames.length ? `
+    <div class="a-section">
+      <div class="a-label" style="color:var(--amber)"><div class="dot" style="background:var(--amber)"></div>EXAMES PRIORITÁRIOS</div>
+      <div class="exam-tags">
+        ${r.exames.map(e=>`<div class="exam-tag ${e.urgente?'urg':''}">${e.urgente?'⚡ ':''}${escH(e.nome)}</div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const obs = r.observacao ? `
+    <div class="a-section">
+      <div class="a-label" style="color:var(--blue)"><div class="dot" style="background:var(--blue)"></div>NOTA CLÍNICA</div>
+      <div class="obs-card">💡 ${escH(r.observacao)}</div>
+    </div>` : '';
+
+  const fu = `
+    <div class="followup">
+      <button class="fu-btn" onclick="fu('Mais detalhes sobre as condutas')">Mais detalhes</button>
+      <button class="fu-btn" onclick="fu('Critérios de internação / alta')">Internação / alta</button>
+      <button class="fu-btn" onclick="fu('Principais diagnósticos diferenciais a excluir')">Diferenciais</button>
+      ${r.modo==='UTI'?`<button class="fu-btn" onclick="fu('Como monitorizar a resposta ao tratamento?')">Monitorização</button>`:''}
+      ${r.modo==='UTI'?`<button class="fu-btn" onclick="fu('Existe interação medicamentosa na prescrição?')">Interações</button>`:''}
+    </div>`;
+
+  const d = document.createElement('div');
+  d.className = 'msg ai';
+  d.innerHTML = `
+    <div class="avatar">⚕</div>
+    <div class="bubble analysis-wrap">
+      <div class="a-header">
+        <div class="a-mode-dot" style="background:${modeColor}"></div>
+        ${r.modo} · ${escH(r.resumo)}
+      </div>
+      ${flags}${params}${hip}${cond}${exams}${obs}${fu}
+    </div>`;
+  document.getElementById('chatContent').appendChild(d);
+  scrollBot();
+}
+
+function fu(text) { document.getElementById('msg').value=text; send(); }
+
+function renderPrescription(r) {
+  const nivelLabel = { ambulatorial:'AMBULATORIAL', internacao:'INTERNAÇÃO / OBSERVAÇÃO', uti:'UTI / TERAPIA INTENSIVA' };
+  const nivelClass = { ambulatorial:'ambulatorial', internacao:'internacao', uti:'uti' };
+  const nivelColor = { ambulatorial:'var(--green)', internacao:'var(--amber)', uti:'var(--red)' };
+  const nv = r.nivel || 'ambulatorial';
+  const uid = 'rx_' + Date.now();
+
+  const alertas = r.alertas && r.alertas.length ? r.alertas.map(a =>
+    `<div class="rx-alert">${escH(a)}</div>`).join('') : '';
+
+  const itens = r.itens.map((item, i) => `
+    <div class="rx-item">
+      <div class="rx-drug">${String(i+1).padStart(2,'0')}. ${escH(item.drug)}</div>
+      <div class="rx-posologia">${escH(item.posologia)}</div>
+      ${item.obs ? `<div class="rx-obs-item">💬 ${escH(item.obs)}</div>` : ''}
+    </div>`).join('');
+
+  // Texto para copiar
+  const copyLines = [
+    `PRESCRIÇÃO — ${nivelLabel[nv]}`,
+    `Diagnóstico: ${r.diagnostico}`,
+    ...(r.alertas && r.alertas.length ? ['', '⚠ ALERTAS:', ...r.alertas] : []),
+    '', 'MEDICAMENTOS:',
+    ...r.itens.map((item, i) => `${i+1}. ${item.drug}\n   ${item.posologia}`),
+    ...(r.criterios_alta && r.criterios_alta.length ? ['', 'CRITÉRIOS DE ALTA:', ...r.criterios_alta.map(c => `✓ ${c}`)] : []),
+  ].join('\n');
+
+  const altaHtml = r.criterios_alta && r.criterios_alta.length ? `
+    <div style="margin-top:4px">
+      <div style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--t3);margin-bottom:5px">CRITÉRIOS DE ALTA</div>
+      <div class="rx-alta-list">
+        ${r.criterios_alta.map(c => `<div class="rx-alta-item">${escH(c)}</div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const d = document.createElement('div');
+  d.className = 'msg ai';
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'avatar';
+  wrapper.textContent = '⚕';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble rx-wrap';
+  bubble.id = uid;
+  bubble.innerHTML = `
+    <div class="rx-header">
+      <div class="rx-title">PRESCRIÇÃO MÉDICA</div>
+      <div class="rx-nivel ${nivelClass[nv]}">${nivelLabel[nv]}</div>
+    </div>
+    <div class="rx-dx">📋 ${escH(r.diagnostico)}</div>
+    ${alertas}
+    <div>
+      <div class="rx-section-label">
+        <div class="dot" style="background:${nivelColor[nv]}"></div>
+        MEDICAMENTOS
+      </div>
+      <div class="rx-items">${itens}</div>
+    </div>
+    ${r.nota ? `
+    <div>
+      <div class="rx-section-label">
+        <div class="dot" style="background:var(--blue)"></div>
+        ORIENTAÇÕES / RETORNO
+      </div>
+      <div class="rx-note">💡 ${escH(r.nota)}</div>
+    </div>` : ''}
+    ${r.fonte ? `<div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:2px">↗ ${escH(r.fonte)}</div>` : ''}
+    ${altaHtml}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn-copy" id="cpbtn_${uid}">📋 Copiar prescrição</button>
+      <button class="fu-btn" onclick="fu('Ajustar a prescrição')">Ajustar</button>
+      <button class="fu-btn" onclick="fu('Verificar interações medicamentosas desta prescrição')">Ver interações</button>
+    </div>`;
+
+  bubble.querySelector(`#cpbtn_${uid}`).addEventListener('click', function() {
+    copyRx(uid, copyLines, this);
+  });
+  d.appendChild(wrapper);
+  d.appendChild(bubble);
+  document.getElementById('chatContent').appendChild(d);
+  scrollBot();
+}
+
+function copyRx(uid, text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copiar prescrição'; btn.classList.remove('copied'); }, 2500);
+  }).catch(() => {
+    // fallback para ambientes sem clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copiar prescrição'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+function scrollBot() {
+  const s = document.getElementById('chatScroll');
+  s.scrollTop = s.scrollHeight;
+}
+
+function handleKey(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+}
+
+function autoResize(el) {
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,100)+'px';
+}
+
+// VOICE — Web Speech API
+let speechRec = null;
+
+function toggleVoice() { isRec ? stopVoice() : startVoice(); }
+
+function startVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('voiceBtn');
+
+  if (!SR) {
+    btn.title = 'Voz não suportada neste navegador — use Chrome';
+    btn.style.color = 'var(--red)';
+    setTimeout(() => { btn.style.color = ''; btn.title = 'Falar'; }, 3000);
+    return;
+  }
+
+  speechRec = new SR();
+  speechRec.lang = 'pt-BR';
+  speechRec.continuous = false;
+  speechRec.interimResults = true;
+
+  speechRec.onstart = () => {
+    isRec = true;
+    btn.classList.add('rec');
+    btn.textContent = '⏹';
+  };
+
+  speechRec.onresult = e => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('msg').value = transcript;
+    autoResize(document.getElementById('msg'));
+  };
+
+  speechRec.onend = () => {
+    isRec = false;
+    btn.classList.remove('rec');
+    btn.textContent = '🎙';
+    const val = document.getElementById('msg').value.trim();
+    if (val) send();
+  };
+
+  speechRec.onerror = e => {
+    isRec = false;
+    btn.classList.remove('rec');
+    btn.textContent = '🎙';
+    if (e.error === 'not-allowed') {
+      btn.title = 'Permissão de microfone negada';
+      btn.style.color = 'var(--red)';
+      setTimeout(() => { btn.style.color = ''; btn.title = 'Falar'; }, 3000);
+    }
+  };
+
+  try { speechRec.start(); } catch(e) { console.error(e); }
+}
+
+function stopVoice() {
+  if (speechRec) speechRec.stop();
+}
+
+// INIT
+renderSidebar();
+</script>
+</body>
+</html>
